@@ -124,7 +124,7 @@ void writeOpShamtAndFunctOnOut(char* opCode, char* shamt, char* funct, char* arr
         arrayOut[2] = opCode[2];
         arrayOut[3] = opCode[3];
         arrayOut[4] = opCode[4];
-        arrayOut[5] = opCode[5];
+       * arrayOut = opCode[5];
 
         // shamt
         arrayOut[21] = shamt[0];
@@ -386,51 +386,43 @@ char getHexa(char* sequence){
     else if(strcmp(sequence,"1111")==0) return 'f'; 
 }
 
-/* main de teste
-void main(){
-    
-    char* instr = "add $s7, $v0, $zero";
-    char* instr1 = "sub $t0, $v0, $v1";
-    char* instr2 = "and $t1, $v0, $zero";
-    char* instr3 = "or $t0, $t0, $t1";
-    char* instr4 = "xor $a0, $t0, $zero";
-    char* instr5 = "slt $a0, $t0, $zero";
-    char* instrBin = (char*)malloc(32*sizeof(char));
-    
-    instructionToBinary(instr, instrBin);
-    printf("%s\n", instrBin);
-    char* instrHexa = malloc(8*sizeof(char));
-    convertToHexadecimal(instrBin, instrHexa);
-    printf(" %s\n", instrHexa);
+void writeFile(char* filename, char* string){
+  FILE *fileDest;
+  fileDest = fopen(filename, "a");
 
-    instructionToBinary(instr1, instrBin);
-    printf("%s\n", instrBin);
-    convertToHexadecimal(instrBin, instrHexa);
-    printf(" %s\n", instrHexa);
-    free(instrBin);
 
-    instructionToBinary(instr2, instrBin);
-    printf("%s\n", instrBin);
-    convertToHexadecimal(instrBin, instrHexa);
-    printf(" %s\n", instrHexa);
-    free(instrBin);
+  fwrite(string , 1 ,sizeof(string) , fileDest);
 
-    instructionToBinary(instr3, instrBin);
-    printf("%s\n", instrBin);
-    convertToHexadecimal(instrBin, instrHexa);
-    printf(" %s\n", instrHexa);
-    free(instrBin);
-
-    instructionToBinary(instr4, instrBin);
-    printf("%s\n", instrBin);
-    convertToHexadecimal(instrBin, instrHexa);
-    printf(" %s\n", instrHexa);
-    free(instrBin);
-
-    instructionToBinary(instr5, instrBin);
-    printf("%s\n", instrBin);
-    convertToHexadecimal(instrBin, instrHexa);
-    printf(" %s\n", instrHexa);
-    free(instrBin);
+  fclose(fileDest);
 }
-fim do main de teste*/
+
+void readFileSegmented(char* filename){
+  FILE *fileSource;
+  fileSource = fopen(filename, "r");
+  char c;
+  int numChar = 0;
+  char line[30];
+
+  int count = 0;
+  while (fread(&c, sizeof(char), 1, fileSource)){
+    if(c == '\n' || c == EOF || c == '\r'){
+      char arrayOut[32];
+      char arrayHexa[32];
+      instructionToBinary(line, arrayOut);
+      convertToHexadecimal(arrayOut, arrayHexa);
+      writeFile("saida.txt", arrayHexa);
+      count = 0;
+    }
+
+    line[count] = c;
+    ++count;
+  }
+
+  fclose(fileSource);
+}
+
+int main(){
+
+  readFileSegmented("teste.txt");
+
+}
